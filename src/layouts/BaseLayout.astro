@@ -17,7 +17,7 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const siteTitle = 'Tudor Moldovan | QA & Tech';
+const siteTitle = 'Tudor.qa';
 const fullTitle = title === 'Home' ? siteTitle : `${title} | ${siteTitle}`;
 ---
 
@@ -27,6 +27,7 @@ const fullTitle = title === 'Home' ? siteTitle : `${title} | ${siteTitle}`;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- SEO -->

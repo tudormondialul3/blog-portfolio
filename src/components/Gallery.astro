@@ -81,7 +81,7 @@ const gridClass = columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm
     <img
       id="lightbox-img"
       src=""
-      alt=""
+      alt="Enlarged gallery photo"
       class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
     />
     <p id="lightbox-caption" class="mt-3 text-sm text-white/80 text-center max-w-xl"></p>
@@ -121,7 +121,7 @@ const gridClass = columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm
   function update() {
     const btn = buttons[current];
     img.src = btn.dataset.src ?? '';
-    img.alt = btn.dataset.alt ?? '';
+    img.alt = btn.dataset.alt ?? 'Enlarged gallery photo';
     caption.textContent = btn.dataset.caption ?? '';
     counter.textContent = `${current + 1} / ${buttons.length}`;
   }

@@ -6,7 +6,7 @@ import mdx from '@astrojs/mdx';
 // https://astro.build/config
 export default defineConfig({
   // Replace with your actual domain for canonical URL generation
-  site: 'https://tudor.dev',
+  site: 'https://blog-portfolio-indol.vercel.app',
 
   integrations: [mdx()],
 
