@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout
+  title="Blog"
+  description="Articles on QA automation, automotive data, and personal finance from Cluj."
+>
+  <section>
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Blog</h1>
+    <p class="text-slate-500 mb-10">Honest writing. No fluff.</p>
+
+    {posts.length === 0 && (
+      <p class="text-slate-500">No posts yet. Check back soon.</p>
+    )}
+
+    <ul class="space-y-8">
+      {posts.map((post) => (
+        <li>
+          <article class="group">
+            <div class="flex items-center gap-3 mb-1">
+              <time
+                datetime={post.data.pubDate.toISOString()}
+                class="text-sm text-slate-400 tabular-nums"
+              >
+                {post.data.pubDate.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              </time>
+              {post.data.tags.map((tag) => (
+                <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <a href={`/blog/${post.id.replace(/\.(md|mdx)$/, '')}`} class="block">
+              <h2 class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                {post.data.title}
+              </h2>
+              <p class="mt-1 text-slate-600 text-sm leading-relaxed">
+                {post.data.description}
+              </p>
+            </a>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

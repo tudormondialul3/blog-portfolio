@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tudor.dev/sitemap-index.xml

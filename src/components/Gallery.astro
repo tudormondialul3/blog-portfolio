@@ -1,0 +1,147 @@
+---
+// src/components/Gallery.astro
+// Lightbox-capable image gallery. Zero external JS dependencies.
+// Uses the native <dialog> element for the lightbox overlay.
+
+interface GalleryImage {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+interface Props {
+  images: GalleryImage[];
+  columns?: 2 | 3;
+}
+
+const { images, columns = 3 } = Astro.props;
+const gridClass = columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+---
+
+<section class="not-prose my-12" aria-label="Photo gallery" data-testid="photo-gallery">
+  <h2 class="text-xl font-bold text-slate-900 mb-4 tracking-tight">Gallery</h2>
+
+  <div class={`grid ${gridClass} gap-3`}>
+    {images.map((img, i) => (
+      <figure class="overflow-hidden rounded-lg bg-slate-100 cursor-pointer group" data-gallery-item>
+        <button
+          class="w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
+          aria-label={`View: ${img.alt}`}
+          data-src={img.src}
+          data-alt={img.alt}
+          data-caption={img.caption ?? ''}
+          data-index={i}
+        >
+          <img
+            src={img.src}
+            alt={img.alt}
+            loading="lazy"
+            decoding="async"
+            class="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </button>
+        {img.caption && (
+          <figcaption class="px-3 py-2 text-xs text-slate-500 leading-snug">
+            {img.caption}
+          </figcaption>
+        )}
+      </figure>
+    ))}
+  </div>
+
+  <p class="mt-2 text-xs text-slate-400">
+    Photos: Wikimedia Commons contributors — CC BY-SA 4.0. Click any image to enlarge.
+  </p>
+</section>
+
+<!-- Lightbox dialog -->
+<dialog
+  id="gallery-lightbox"
+  class="fixed inset-0 z-50 w-full h-full max-w-none max-h-none m-0 p-0 bg-transparent backdrop:bg-black/80"
+  aria-modal="true"
+  aria-label="Image lightbox"
+>
+  <div class="flex flex-col items-center justify-center w-full h-full p-4" id="lightbox-inner">
+    <button
+      id="lightbox-close"
+      class="absolute top-4 right-4 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-black/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      aria-label="Close lightbox"
+    >
+      ✕
+    </button>
+
+    <button
+      id="lightbox-prev"
+      class="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-black/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      aria-label="Previous image"
+    >
+      ‹
+    </button>
+
+    <img
+      id="lightbox-img"
+      src=""
+      alt=""
+      class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+    />
+    <p id="lightbox-caption" class="mt-3 text-sm text-white/80 text-center max-w-xl"></p>
+    <p id="lightbox-counter" class="mt-1 text-xs text-white/50"></p>
+
+    <button
+      id="lightbox-next"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-black/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      aria-label="Next image"
+    >
+      ›
+    </button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('gallery-lightbox') as HTMLDialogElement;
+  const img = document.getElementById('lightbox-img') as HTMLImageElement;
+  const caption = document.getElementById('lightbox-caption') as HTMLParagraphElement;
+  const counter = document.getElementById('lightbox-counter') as HTMLParagraphElement;
+
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-gallery-item] button[data-src]'));
+  let current = 0;
+
+  function open(index: number) {
+    current = index;
+    update();
+    dialog.showModal();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    dialog.close();
+    document.body.style.overflow = '';
+  }
+
+  function update() {
+    const btn = buttons[current];
+    img.src = btn.dataset.src ?? '';
+    img.alt = btn.dataset.alt ?? '';
+    caption.textContent = btn.dataset.caption ?? '';
+    counter.textContent = `${current + 1} / ${buttons.length}`;
+  }
+
+  function prev() { current = (current - 1 + buttons.length) % buttons.length; update(); }
+  function next() { current = (current + 1) % buttons.length; update(); }
+
+  buttons.forEach((btn, i) => btn.addEventListener('click', () => open(i)));
+
+  document.getElementById('lightbox-close')?.addEventListener('click', close);
+  document.getElementById('lightbox-prev')?.addEventListener('click', prev);
+  document.getElementById('lightbox-next')?.addEventListener('click', next);
+
+  // Close on backdrop click
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+
+  // Keyboard navigation
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'Escape') close();
+  });
+</script>
